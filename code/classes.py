@@ -59,13 +59,18 @@ def expGrid(a,b,c,N):
     return np.maximum(0,np.exp(t)-s)
 
 """
-calculation of expected deaths
+calculation of expected deaths given path for SIRD population shares and daily
+probability of vaccine arrival nu (remember that K is the number of simulations
+per day and T is the number of days for which we simulate)
 """
 
+T, K = calibration.T, calibration.K
 def exp_death(nu,path):
+    #probability of vaccine arriving on given day:
     pv = nu*np.exp(-nu*np.arange(T*K)/K)/K
+    #probability that vaccine has not arrived
     pv_remain = 1-np.sum(pv)
-    #cumulative death conditional on no vaccine:
+    #cumulative death path (don't forget those sick when vaccine arrives):
     D_con_ult = path[1,:]*delta0 + path[3,:]
     #expectation wrt vaccine arrival:
     return np.sum(pv*D_con_ult) + pv_remain*D_con_ult[-1]
